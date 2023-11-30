@@ -1,0 +1,65 @@
+
+spring:
+  application:
+    name: Comment-Port-Service
+  datasource:
+    url: jdbc:mysql://localhost:3306/commentDb
+    username: root
+    password: root123@
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+server:
+  port: 8082
+
+#-------------  Eureka Server configuration  -----------------
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+#---------------Circuit Breakers Properties--------------------------------------------------------------------------------------------
+#-------------  resilience4j  -----------------
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 6s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        automaticTransitionFromOpenToHalfOpen: Enabled
+        slidingWindowType: COUNT_BASED
+
+
+# ------------Actuator configuration for health monitoring-------------------------
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+
+

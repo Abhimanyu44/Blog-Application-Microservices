@@ -1,0 +1,79 @@
+
+spring:
+  application:
+    name: Post-Port-Service
+  datasource:
+    url: jdbc:mysql://localhost:3306/postDb
+    username: root
+    password: root123@
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+server:
+  port: 8081
+
+#---------------Eureka server configuration------------------------------------------------------------------------------------------
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+#---------------Circuit Breakers Properties--------------------------------------------------------------------------------------------
+#-------------  resilience4j  -----------------
+resilience4j:
+  circuitbreaker:
+#    configs:
+#      default:
+    instances:
+      CommentBreaker:      #      Same name as on controller:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 6s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        automaticTransitionFromOpenToHalfOpen: Enabled
+        slidingWindowType: COUNT_BASED
+
+#        recordExceptions:
+#          - java.io.IOException
+#          - java.util.concurrent.TimeoutException
+#    instances:
+#      myService:
+#        baseConfig: default
+#  instance:
+#    myService:
+#      baseConfig: default
+
+
+# ------------Actuator configuration for health monitoring-------------------------
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+#  info:
+#    app:
+#      name: My Microservice
+#      version: 1.0.0
